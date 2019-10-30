@@ -112,6 +112,110 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &577962716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 577962717}
+  - component: {fileID: 577962721}
+  - component: {fileID: 577962720}
+  - component: {fileID: 577962719}
+  - component: {fileID: 577962718}
+  m_Layer: 0
+  m_Name: SwordBlade
+  m_TagString: Sword
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &577962717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577962716}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 8.39, y: 0.5, z: 0.39999995}
+  m_LocalScale: {x: 0.099999994, y: 0.2000001, z: 2}
+  m_Children: []
+  m_Father: {fileID: 1174683319154830748}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &577962718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577962716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a67cecc7208653241820e863cf65643c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &577962719
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577962716}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &577962720
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577962716}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &577962721
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577962716}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &739011592
 GameObject:
   m_ObjectHideFlags: 0
@@ -492,6 +596,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a59bd6225b868e34b8c762316ac70e91, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8494904b31c48124abdae7ab7d873252, type: 3}
+--- !u!4 &1174683319154830748 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4267514020019403652, guid: 8494904b31c48124abdae7ab7d873252,
+    type: 3}
+  m_PrefabInstance: {fileID: 1174683319154830747}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4908380765806337072
 Transform:
   m_ObjectHideFlags: 0
@@ -550,6 +660,7 @@ GameObject:
   - component: {fileID: 4908380766540294749}
   - component: {fileID: 4908380766540294750}
   - component: {fileID: 4908380766540294751}
+  - component: {fileID: 4908380766540294746}
   m_Layer: 0
   m_Name: SwordBlade
   m_TagString: Sword
@@ -557,6 +668,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &4908380766540294746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4908380766540294745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a67cecc7208653241820e863cf65643c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!33 &4908380766540294749
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -749,6 +872,7 @@ GameObject:
   - component: {fileID: 4908380767943409412}
   - component: {fileID: 4908380767943409413}
   - component: {fileID: 4908380767943409414}
+  - component: {fileID: 4908380767943409409}
   m_Layer: 0
   m_Name: ShieldWall
   m_TagString: Shield
@@ -756,6 +880,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &4908380767943409409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4908380767943409408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f66ea5440f65064eb2dc1b0f03e2eba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!33 &4908380767943409412
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -32,38 +32,32 @@ public class FSMControlAgent : MonoBehaviour
         {
             case State.Idle:
                 {
-                    if(newState == State.Patrol || newState == State.Investigate || newState == State.Dead)
-                    {
-                        switchAllowed = true;
-                    }
+                    switchAllowed = newState == State.Patrol || newState == State.Investigate || newState == State.Dead;
                 }
                 break;
             case State.Patrol:
                 {
-                    if (newState == State.Idle || newState == State.Investigate || newState == State.Confront)
-                    {
-                        switchAllowed = true;
-                    }
+                    switchAllowed = newState == State.Idle || newState == State.Investigate || newState == State.Confront;
                 }
                 break;
             case State.Investigate:
                 {
-
+                    switchAllowed = newState == State.Confront || newState == State.Dodge || newState == State.Patrol;
                 }
                 break;
             case State.Confront:
                 {
-
+                    switchAllowed = newState == State.Dodge || newState == State.Investigate;
                 }
                 break;
             case State.Dodge:
                 {
-
+                    switchAllowed = newState == State.Confront || newState == State.Investigate;
                 }
                 break;
             case State.Dead:
                 {
-
+                    switchAllowed = false;
                 }
                 break;
         }
