@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1174683318138407885}
   - component: {fileID: 1174683318138407886}
   - component: {fileID: 1174683318138407887}
+  - component: {fileID: 5027986621949611544}
   m_Layer: 0
   m_Name: SwordBlade
   m_TagString: Sword
@@ -91,6 +92,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5027986621949611544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1174683318138407881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a67cecc7208653241820e863cf65643c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1174683318459537279
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,6 +352,7 @@ GameObject:
   - component: {fileID: 1174683319416774292}
   - component: {fileID: 1174683319416774293}
   - component: {fileID: 1174683319416774294}
+  - component: {fileID: 3845278944661817873}
   m_Layer: 0
   m_Name: ShieldWall
   m_TagString: Shield
@@ -418,6 +432,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3845278944661817873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1174683319416774288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f66ea5440f65064eb2dc1b0f03e2eba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4264170931352068056
 GameObject:
   m_ObjectHideFlags: 0
