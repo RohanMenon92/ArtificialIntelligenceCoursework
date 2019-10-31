@@ -156,8 +156,6 @@ public class FSMControlAgent : MonoBehaviour
         }
     }
 
-#endregion
-
     // Loop for currState
     void OnProcessState(State currState)
     {
@@ -196,6 +194,7 @@ public class FSMControlAgent : MonoBehaviour
         }
     }
 
+    #endregion
 
 
     // Start is called before the first frame update

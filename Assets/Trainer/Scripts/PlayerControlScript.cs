@@ -4,10 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerControlScript : MonoBehaviour
+public class PlayerControlScript : MonoBehaviour, IPlayerStats
 {
-    bool attacking = false;
-    bool blocking = false;
+
+    public float health { get; set; }
+    public float speed { get; set; }
+
+    public bool isAttacking { get; set; }
+    public bool isBlocking { get; set; }
 
     Vector3 swordRestPos = new Vector3(0.7f, 0f, 0.4f);
     Vector3 shieldRestPos = new Vector3(-0.7f, 0f, 0.2f);
@@ -22,10 +26,11 @@ public class PlayerControlScript : MonoBehaviour
     public Transform sword;
     public Transform shield;
 
-
     // Start is called before the first frame update
     void Start()
     {
+        health = 50;
+        speed = moveSpeed;
         playerRigidBody = GetComponent<Rigidbody>();
     }
 
@@ -40,7 +45,6 @@ public class PlayerControlScript : MonoBehaviour
             OnBack();
         }
 
-
         // Key for Direction
         if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
@@ -51,12 +55,12 @@ public class PlayerControlScript : MonoBehaviour
             OnRight();
         }
 
-        if(Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             OnBlock();
         }
 
-        if(Input.GetKeyUp(KeyCode.LeftControl))
+        if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             OnUnBlock();
         }
@@ -76,9 +80,9 @@ public class PlayerControlScript : MonoBehaviour
     void OnForward()
     {
         Vector3 dirToGo = transform.forward;
-        playerRigidBody.AddForce(dirToGo * moveSpeed * (blocking ? 0.5f : 1f), ForceMode.VelocityChange);
+        playerRigidBody.AddForce(dirToGo * moveSpeed * (isBlocking ? 0.5f : 1f), ForceMode.VelocityChange);
 
-        float forwardLimit = blocking ? 2f : 5f;
+        float forwardLimit = isBlocking ? 2f : 5f;
 
         if (playerRigidBody.velocity.magnitude > forwardLimit)
         {
@@ -88,9 +92,9 @@ public class PlayerControlScript : MonoBehaviour
     void OnBack()
     {
         Vector3 dirToGo = -transform.forward;
-        playerRigidBody.AddForce(dirToGo * moveSpeed * (blocking ? 0.5f : 1f), ForceMode.VelocityChange);
+        playerRigidBody.AddForce(dirToGo * moveSpeed * (isBlocking ? 0.5f : 1f), ForceMode.VelocityChange);
 
-        float reverseLimit = blocking ? 1f : 2f;
+        float reverseLimit = isBlocking ? 1f : 2f;
 
         if (playerRigidBody.velocity.magnitude > reverseLimit)
         {
@@ -100,21 +104,62 @@ public class PlayerControlScript : MonoBehaviour
     void OnLeft()
     {
         Vector3 dirToRotate = -transform.up;
-        transform.Rotate(dirToRotate, Time.fixedDeltaTime * turnSpeed * (blocking ? 0.5f : 1f));
+        transform.Rotate(dirToRotate, Time.fixedDeltaTime * turnSpeed * (isBlocking ? 0.5f : 1f));
     }
     void OnRight()
     {
         Vector3 dirToRotate = transform.up;
-        transform.Rotate(dirToRotate, Time.fixedDeltaTime * turnSpeed * (blocking ? 0.5f : 1f));
+        transform.Rotate(dirToRotate, Time.fixedDeltaTime * turnSpeed * (isBlocking ? 0.5f : 1f));
     }
 
-
-    void OnAttack()
+    public void OnAttack()
     {
-        if(!attacking && !blocking)
+        if (!isAttacking && !isBlocking)
         {
-            attacking = true;
+            isAttacking = true;
             AttackAction();
+        }
+    }
+
+    // When it's hit by another player, called by script object
+    public void OnHit(IPlayerStats attackPlayer)
+    {
+        if (isBlocking)
+        {
+            this.OnBlockAttack();
+            attackPlayer.OnBlock();
+        } else {
+            this.OnSuccessHit();
+            attackPlayer.OnSuccessAttack();
+        }
+    }
+
+    // On Blocking an attack from another player
+    public void OnBlockAttack()
+    {
+
+    }
+
+    // On succesful hit
+    public void OnSuccessHit()
+    {
+        this.health-=10;
+        this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
+    }
+
+    public void OnSuccessAttack()
+    {
+
+    }
+
+    // When other player blocks attack
+    public void OnBlock()
+    {
+
+        if (!isAttacking && !isBlocking)
+        {
+            isBlocking = true;
+            BlockAction();
         }
     }
 
@@ -134,18 +179,14 @@ public class PlayerControlScript : MonoBehaviour
 
     void AttackComplete()
     {
-        attacking = false;
+        isAttacking = false;
     }
 
-
-    void OnBlock()
+    void OnAttackBlocked()
     {
-        if(!attacking && !blocking)
-        {
-            blocking = true;
-            BlockAction();
-        }
+        
     }
+
 
     void BlockAction()
     {
@@ -167,6 +208,6 @@ public class PlayerControlScript : MonoBehaviour
 
     void BlockComplete()
     {
-        blocking = false;
+        isBlocking = false;
     }
 }
