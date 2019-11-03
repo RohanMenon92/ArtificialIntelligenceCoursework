@@ -6,20 +6,26 @@ public interface IPlayerStats
 {
     float health { get; set; }
     float speed { get; set; }
-    bool isAttacking { get; set; }
+    float turnSpeed { get; set; }
+
+    bool isReloading { get; set; }
     bool isBlocking { get; set; }
 
     // On Input to Attack
-    bool OnAttack();
+    void OnAttack();
     //On Input to Block
-    bool OnBlock();
+    void OnBlock();
 
-    // On Attempt to hit player
-    void OnHit(IPlayerStats atackPlayer);
-    //On Blocking enemy Attack
-    void OnBlockAttack();
-    //On Successful hit to player
+    // On Player being hit directly
+    void OnHit();
+    // On Successful Attempt to hit enemy
     void OnSuccessHit();
-    //On Succesful attack to other player
-    void OnSuccessAttack();
+    // On Succesfully Blocking a hit
+    void OnSuccessfulBlock();
+    // On Shielded Hit to Enemy
+    void OnShieldedHit();
+
+    // On Player dying
+    void OnDeath();
+
 }

@@ -6,31 +6,35 @@ using UnityEngine;
 
 public class PlayerControlScript : MonoBehaviour, IPlayerStats
 {
-
     public float health { get; set; }
     public float speed { get; set; }
 
-    public bool isAttacking { get; set; }
+    public bool isReloading { get; set; }
     public bool isBlocking { get; set; }
 
-    Vector3 swordRestPos = new Vector3(0.7f, 0f, 0.4f);
-    Vector3 shieldRestPos = new Vector3(-0.7f, 0f, 0.2f);
+    public float turnSpeed { get; set; }
 
+    public float rotateSpeed = 200;
+    public float moveSpeed = 0.0001f;
+
+    public GameObject bulletPrefab;
+    public Transform firePos;
+
+    Vector3 shieldRestPos = new Vector3(0f, 0.6f, 0.75f);
     Sequence attackSequence;
     Sequence defenseSequence;
 
     Rigidbody playerRigidBody;
-    public float turnSpeed = 200;
-    public float moveSpeed = 0.0001f;
 
-    public Transform sword;
+    public Transform gun;
     public Transform shield;
 
     // Start is called before the first frame update
     void Start()
     {
-        health = 50;
+        health = 100;
         speed = moveSpeed;
+        turnSpeed = rotateSpeed;
         playerRigidBody = GetComponent<Rigidbody>();
     }
 
@@ -65,8 +69,6 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
             OnUnBlock();
         }
 
-
-
         if (Input.GetKey(KeyCode.Space))
         {
             OnAttack();
@@ -82,7 +84,7 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
         Vector3 dirToGo = transform.forward;
         playerRigidBody.AddForce(dirToGo * moveSpeed * (isBlocking ? 0.5f : 1f), ForceMode.VelocityChange);
 
-        float forwardLimit = isBlocking ? 2f : 5f;
+        float forwardLimit = isBlocking ? 1f : 5f;
 
         if (playerRigidBody.velocity.magnitude > forwardLimit)
         {
@@ -114,49 +116,29 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
 
     public void OnAttack()
     {
-        if (!isAttacking && !isBlocking)
+        if (!isReloading && !isBlocking)
         {
-            isAttacking = true;
+            isReloading = true;
             AttackAction();
         }
     }
 
     // When it's hit by another player, called by script object
-    public void OnHit(IPlayerStats attackPlayer)
+    public void OnHit()
     {
-        if (isBlocking)
-        {
-            this.OnBlockAttack();
-            attackPlayer.OnBlock();
-        } else {
-            this.OnSuccessHit();
-            attackPlayer.OnSuccessAttack();
-        }
-    }
-
-    // On Blocking an attack from another player
-    public void OnBlockAttack()
-    {
-
-    }
-
-    // On succesful hit
-    public void OnSuccessHit()
-    {
-        this.health-=10;
+        this.health -= 10;
         this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
-    }
-
-    public void OnSuccessAttack()
-    {
-
+        if(health <= 0f)
+        {
+            OnDeath();
+        }
     }
 
     // When other player blocks attack
     public void OnBlock()
     {
 
-        if (!isAttacking && !isBlocking)
+        if (!isReloading && !isBlocking)
         {
             isBlocking = true;
             BlockAction();
@@ -165,11 +147,10 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
 
     void AttackAction()
     {
+        FireBullet();
         attackSequence = DOTween.Sequence();
-        attackSequence.Insert(0f, sword.DOLocalMove(new Vector3(0f, 0f, 1f), 0.5f).SetEase(Ease.InCubic));
-        attackSequence.Insert(0.5f, sword.DOLocalRotate(new Vector3(0f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
-        attackSequence.Insert(1f, sword.DOLocalRotate(new Vector3(-90f, 0f, 0f), 0.15f).SetEase(Ease.InOutBack));
-        attackSequence.Insert(1.1f, sword.DOLocalMove(swordRestPos, 0.25f).SetEase(Ease.OutBack));
+        attackSequence.Insert(0f, gun.DOLocalMove(new Vector3(0f, 0f, -0.4f), 0.2f).SetEase(Ease.InOutBack));
+        attackSequence.Insert(0.3f, gun.DOLocalMove(new Vector3(0f, 0f, 0f), 4.7f).SetEase(Ease.InOutQuad));
 
         attackSequence.OnComplete(AttackComplete);
         attackSequence.Play();
@@ -177,23 +158,24 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
         //MoveSword(() => { attacking = false });
     }
 
-    void AttackComplete()
+    void FireBullet()
     {
-        isAttacking = false;
+        GameObject instantiatedBullet = GameObject.Instantiate(bulletPrefab, firePos.position, transform.rotation);
+        instantiatedBullet.GetComponent<BulletScript>().firedFrom = this;
     }
 
-    void OnAttackBlocked()
+    void AttackComplete()
     {
-        
+        isReloading = false;
     }
 
 
     void BlockAction()
     {
         defenseSequence = DOTween.Sequence();
-        defenseSequence.Insert(0f, shield.DOLocalMove(new Vector3(0f, -0.25f, 1f), 0.25f).SetEase(Ease.InCubic));
-        defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(0f, 90f, 0f), 0.25f).SetEase(Ease.InOutBack));
-        //defenseSequence.OnComplete(BlockComplete);
+        defenseSequence.Insert(0f, shield.DOLocalMove(new Vector3(0f, 0f, 1f), 0.25f).SetEase(Ease.InOutBack));
+        defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(60f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
+        defenseSequence.Insert(0f, gun.DOScale(new Vector3(1f, 1f, 0.5f), 0.25f).SetEase(Ease.OutBack));
         // TO DO
         // MoveShield To Position
     }
@@ -203,11 +185,31 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(0f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalMove(shieldRestPos, 0.25f).SetEase(Ease.OutBack));
+        defenseSequence.Insert(0f, gun.DOScale(new Vector3(1f, 1f, 1f), 0.25f).SetEase(Ease.OutBack));
         defenseSequence.OnComplete(BlockComplete);
     }
 
-    void BlockComplete()
+    public void BlockComplete()
     {
         isBlocking = false;
+    }
+
+    public void OnSuccessHit()
+    {
+        Debug.Log(this.gameObject.name + " successfully hit");
+    }
+
+    public void OnDeath()
+    {
+        Debug.Log(this.gameObject.name + " isDead");
+    }
+
+    public void OnSuccessfulBlock()
+    {
+        Debug.Log(this.gameObject.name + " successfully blocked a shot");
+    }
+    public void OnShieldedHit()
+    {
+        Debug.Log(this.gameObject.name + " shot hit was blocked by a shield");
     }
 }
