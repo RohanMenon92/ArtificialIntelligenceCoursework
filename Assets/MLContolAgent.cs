@@ -32,16 +32,28 @@ public class MLContolAgent : Agent, IPlayerStats
     public Transform gun;
     public Transform shield;
 
-    Vector3 resetFSMPosition = new Vector3(-16f, 0.4f, 11.4f);
-    Vector3 resetMLPosition = new Vector3(23.6f, 0.4f, -36f);
+    Vector3 resetFSMPosition = new Vector3(-39.6f, -0.5f, 56.5f);
+    Vector3 resetMLPosition = new Vector3(-8.8f, -0.5f, 41f);
 
     RayPerception m_RayPer;
 
     float[] m_RayAngles = { -40f, -20f, 0f, 20f, 40f, 60f, 80f, 100f, 120f, 140f, 160f, 180f, 200f, 220f };
-    string[] detectableObjects = { "Bullet", "FSMPlayer", "Player" };
+    string[] detectableObjects = { "Bullet", "FSMPlayer", "Player", "wall" };
     // Start is called before the first frame update
+
+
+    // Check decision bools to have smooth input
+    bool onDecisionForward = false;
+    bool onDecisionBack = false;
+    bool onDecisionLeft = false;
+    bool onDecisionRight = false;
+    bool onDecisionUnBlock = false;
+    bool onDecisionBlock = false;
+    bool onDecisionAttack = false;
+
     void Start()
     {
+        //StartCoroutine(CheckDamageAndDecideToFail());
     }
 
     public override void InitializeAgent()
@@ -49,7 +61,7 @@ public class MLContolAgent : Agent, IPlayerStats
         base.InitializeAgent();
         m_RayPer = GetComponent<RayPerception>();
 
-        health = 100;
+        health = 50;
         speed = moveSpeed;
         turnSpeed = rotateSpeed;
         playerRigidBody = GetComponent<Rigidbody>();
@@ -57,47 +69,101 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public override void AgentReset()
     {
-        GameObject.FindObjectOfType<FSMControlAgent>().transform.position = new Vector3(resetFSMPosition.x - Random.Range(-2f, 2f), resetFSMPosition.y, resetFSMPosition.z - Random.Range(-2f, 2f));
-        transform.position = new Vector3(resetMLPosition.x - Random.Range(-2f, 2f), resetMLPosition.y, resetMLPosition.z - Random.Range(-2f, 2f));
+        // Only reset sibling FSM AI
+        FSMControlAgent fsmControlAgent = transform.parent.GetComponentInChildren<FSMControlAgent>();
 
-        foreach(BulletScript bullet in GameObject.FindObjectsOfType<BulletScript>())
+        // Randomize Spawn locations
+        fsmControlAgent.transform.localPosition = new Vector3(resetFSMPosition.x - Random.Range(-2f, 2f), resetFSMPosition.y, resetFSMPosition.z - Random.Range(-2f, 2f));
+        transform.localPosition = new Vector3(resetMLPosition.x - Random.Range(-2f, 2f), resetMLPosition.y, resetMLPosition.z - Random.Range(-2f, 2f));
+
+        // ResetHealth
+        health = 100;
+        fsmControlAgent.health = 100;
+
+        // Kill animations and callbacks
+        if (isBlocking)
+        {
+            OnUnBlock();
+            defenseSequence.Kill(true);
+        }
+
+        if (isReloading)
+        {
+            attackSequence.Kill(true);
+        }
+
+        if (fsmControlAgent.isBlocking)
+        {
+            OnUnBlock();
+            fsmControlAgent.defenseSequence.Kill(true);
+        }
+
+        if (fsmControlAgent.isReloading)
+        {
+            fsmControlAgent.attackSequence.Kill(true);
+        }
+
+
+        foreach (BulletScript bullet in GameObject.FindObjectsOfType<BulletScript>())
         {
             Destroy(bullet.gameObject);
         }
+
+        //StartCoroutine(CheckDamageAndDecideToFail());
     }
+
+    //IEnumerator CheckDamageAndDecideToFail()
+    //{
+    //    yield return new WaitForSeconds(10f);
+    //    // End Experiment with faliure because no one got damaged
+    //    FSMControlAgent fsmControlAgent = transform.parent.GetComponentInChildren<FSMControlAgent>();
+
+    //    if (fsmControlAgent.health == 50)
+    //    {
+    //        Debug.Log("Failure case no one lost health at 15 seconds");
+    //        AddReward(-75f);
+    //        Done();
+    //    }
+    //}
 
     public override void CollectObservations()
     {
         float rayDistance = 20f;
 
+        //Add self Observations
         AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 0f, 0f));
         AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 1f, 0f));
         AddVectorObs(health);
         AddVectorObs(isReloading);
         AddVectorObs(isBlocking);
-        AddVectorObs(transform.position);
-        AddVectorObs(transform.rotation);
+        AddVectorObs(new Vector3(transform.localPosition.x, -0.5f, transform.localPosition.z));
+        AddVectorObs(transform.localRotation.eulerAngles.y);
         AddVectorObs(playerRigidBody.velocity.x);
         AddVectorObs(playerRigidBody.velocity.z);
 
-        if (target != null)
+        //If targeting, Add targeting or add empty values
+        bool isTargetNull = target != null;
+        AddVectorObs(isTargetNull);
+
+        if (isTargetNull)
         {
             IPlayerStats targetIPlayerStats = target.GetComponent<IPlayerStats>();
 
             AddVectorObs(targetIPlayerStats.health);
-            //41
             AddVectorObs(targetIPlayerStats.isReloading);
-            //42
             AddVectorObs(targetIPlayerStats.isBlocking);
-            AddVectorObs(target.transform.position);
-            AddVectorObs(target.transform.rotation);
+            AddVectorObs(Vector3.Distance(target.transform.localPosition, transform.localPosition));
+            AddVectorObs(new Vector3(target.transform.localPosition.x, -0.5f, target.transform.localPosition.z));
+            AddVectorObs(target.transform.localRotation.y);
             AddVectorObs(target.GetComponent<Rigidbody>().velocity.x);
             AddVectorObs(target.GetComponent<Rigidbody>().velocity.z);
-        } else
+        }
+        else
         {
             AddVectorObs(0f);
             AddVectorObs(false);
             AddVectorObs(false);
+            AddVectorObs(0f);
             AddVectorObs(Vector3.zero);
             AddVectorObs(Quaternion.identity);
             AddVectorObs(0f);
@@ -112,85 +178,133 @@ public class MLContolAgent : Agent, IPlayerStats
         float blockAction = Mathf.FloorToInt(vectorAction[2]);
         float attackAction = Mathf.FloorToInt(vectorAction[3]);
 
-        if(upDownSignal > 0f)
+        // Set up bool values so that fixed update can decide whenn to do it per frame
+        if (upDownSignal >= 0f)
         {
+            OnDecisionForward(true);
+            OnDecisionBack(false);
+        }
+        else if (upDownSignal < 0f)
+        {
+            OnDecisionBack(true);
+            OnDecisionForward(false);
+        }
+
+        if (leftRightSignal > 0f)
+        {
+            OnDecisionLeft(true);
+            OnDecisionRight(false);
+        }
+        else if (leftRightSignal < 0f)
+        {
+            OnDecisionLeft(false);
+            OnDecisionRight(true);
+        } else if (leftRightSignal == 0f) {
+            OnDecisionLeft(false);
+            OnDecisionRight(false);
+        }
+
+        if (blockAction > 0.5f)
+        {
+            if (!isBlocking)
+            {
+                OnDecisionBlock(true);
+                OnDecisionUnBlock(false);
+            }
+        }
+        else
+        {
+            if (isBlocking)
+            {
+                OnDecisionBlock(false);
+                OnDecisionUnBlock(true);
+            }
+        }
+
+        if (attackAction > 0.5f)
+        {
+            OnDecisionAttack(true);
+        } else
+        {
+            OnDecisionAttack(false);
+        }
+    }
+
+    void OnDecisionAttack(bool value)
+    {
+        onDecisionAttack = value;
+    }
+    void OnDecisionBlock(bool value)
+    {
+        onDecisionBlock = value;
+    }
+    void OnDecisionUnBlock(bool value)
+    {
+        onDecisionUnBlock = value;
+    }
+    void OnDecisionLeft(bool value)
+    {
+        onDecisionLeft = value;
+    }
+    void OnDecisionRight(bool value)
+    {
+        onDecisionRight = value;
+    }
+    void OnDecisionForward(bool value)
+    {
+        onDecisionForward = value;
+    }
+    void OnDecisionBack(bool value)
+    {
+        onDecisionBack = value;
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        // Check decision bools to have smooth input
+        if (onDecisionForward)
+        {
+            AddReward(0.001f);
             OnForward();
-        } else if(upDownSignal < 0f)
+        }
+        else if (onDecisionBack)
         {
+            AddReward(0.0001f);
             OnBack();
         }
 
-        if(leftRightSignal > 0f)
+        if (onDecisionLeft)
         {
             OnLeft();
-        } else if(leftRightSignal < 0f)
+        }
+        else if (onDecisionRight)
         {
             OnRight();
         }
 
-        if(blockAction > 0.5f)
+        if (onDecisionUnBlock)
         {
-            if(!isBlocking)
-            {
-                OnBlock();
-            }
-        } else
+            OnUnBlock();
+        }
+        else if (onDecisionBlock)
         {
-            if(isBlocking)
-            {
-                OnUnBlock();
-            }
+            OnBlock();
         }
 
-        if(attackAction > 0.5f)
+        if(onDecisionAttack)
         {
             OnAttack();
         }
+
+        // If objects glitch, end simulation
+        if (transform.localPosition.y < -40f || transform.localPosition.z < -8.5f || transform.localPosition.z > 96.5f || transform.localPosition.x < -75f || transform.localPosition.x > 28f)
+        {
+            Debug.Log("Out of Bounds Falling off screen");
+            AddReward(-100f);
+            OnDeath();
+        }
     }
-
-        // Update is called once per frame
-        //void Update()
-        //{
-        //    // Key for velocity
-        //    if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
-        //    {
-        //        OnForward();
-        //    }
-        //    else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
-        //    {
-        //        OnBack();
-        //    }
-
-        //    // Key for Direction
-        //    if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
-        //    {
-        //        OnLeft();
-        //    }
-        //    else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-        //    {
-        //        OnRight();
-        //    }
-
-        //    if (Input.GetKeyDown(KeyCode.LeftControl))
-        //    {
-        //        OnBlock();
-        //    }
-
-        //    if (Input.GetKeyUp(KeyCode.LeftControl))
-        //    {
-        //        OnUnBlock();
-        //    }
-
-        //    if (Input.GetKey(KeyCode.Space))
-        //    {
-        //        OnAttack();
-        //    }
-
-        //    // KeyUp
-
-
-        //}
-
     void OnForward()
     {
         Vector3 dirToGo = transform.forward;
@@ -232,13 +346,16 @@ public class MLContolAgent : Agent, IPlayerStats
         {
             isReloading = true;
             AttackAction();
+        } else
+        {
+            AddReward(-0.0001f);
         }
     }
 
     // When it's hit by another player, called by script object
     public void OnHit()
     {
-        AddReward(-10f);
+        AddReward(-2f);
         this.health -= 10;
         this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
         if (health <= 0f)
@@ -254,13 +371,15 @@ public class MLContolAgent : Agent, IPlayerStats
         {
             isBlocking = true;
             BlockAction();
+        } else
+        {
+            AddReward(-0.0001f);
         }
     }
 
     void AttackAction()
     {
         // Add tiny reward to teach to correctly fire
-        AddReward(0.01f);
         FireBullet();
         attackSequence = DOTween.Sequence();
         attackSequence.Insert(0f, gun.DOLocalMove(new Vector3(0f, 0f, -0.4f), 0.2f).SetEase(Ease.InOutBack));
@@ -272,7 +391,9 @@ public class MLContolAgent : Agent, IPlayerStats
 
     void FireBullet()
     {
-        GameObject instantiatedBullet = GameObject.Instantiate(bulletPrefab, firePos.position, transform.rotation);
+        AddReward(0.1f);
+
+        GameObject instantiatedBullet = GameObject.Instantiate(bulletPrefab, firePos.position, transform.localRotation);
         instantiatedBullet.GetComponent<BulletScript>().firedFrom = this;
     }
 
@@ -281,11 +402,10 @@ public class MLContolAgent : Agent, IPlayerStats
         isReloading = false;
     }
 
-
     void BlockAction()
     {
         // Add tiny reward to teach to correctly block
-        AddReward(0.01f);
+        AddReward(0.001f);
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalMove(new Vector3(0f, 0f, 1f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(60f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
@@ -296,7 +416,11 @@ public class MLContolAgent : Agent, IPlayerStats
 
     void OnUnBlock()
     {
-        shield.GetComponentInChildren<Collider>().enabled = false;
+        if(!isBlocking)
+        {
+            AddReward(-0.0001f);
+            return;
+        }
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(0f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalMove(shieldRestPos, 0.25f).SetEase(Ease.OutBack));
@@ -307,7 +431,6 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public void BlockComplete()
     {
-        shield.GetComponentInChildren<Collider>().enabled = true;
         isBlocking = false;
     }
 
@@ -319,19 +442,19 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public void OnDeath()
     {
-        AddReward(-200f);
+        AddReward(-100f);
         Done();
         Debug.Log(this.gameObject.name + " isDead");
     }
 
     public void OnSuccessfulBlock()
     {
-        AddReward(2f);
+        AddReward(10f);
         Debug.Log(this.gameObject.name + " successfully blocked a shot");
     }
     public void OnShieldedHit()
     {
-        AddReward(1f);
+        AddReward(5f);
         Debug.Log(this.gameObject.name + " shot hit was blocked by a shield");
     }
 
@@ -341,16 +464,17 @@ public class MLContolAgent : Agent, IPlayerStats
     }
     public void SetTarget(GameObject targetInArea)
     {
-        AddReward(0.01f);
-        if(target != targetInArea)
+        AddReward(0.001f);
+        if (target != targetInArea)
         {
             target = targetInArea;
         }
     }
     public void OnInvestigateAreaExit(GameObject targetInArea)
     {
-        if (target != targetInArea)
+        if (target == targetInArea)
         {
+            AddReward(-1f);
             target = null;
         }
     }
@@ -359,5 +483,14 @@ public class MLContolAgent : Agent, IPlayerStats
     {
         AddReward(200f);
         Done();
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        // Prevent it from touching walls for too long
+        if(collision.gameObject.tag == "wall")
+        {
+            AddReward(-1f);
+        }
     }
 }

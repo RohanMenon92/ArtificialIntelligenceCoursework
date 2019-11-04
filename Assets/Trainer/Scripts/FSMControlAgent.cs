@@ -8,7 +8,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
     public float health { get; set; }
     public float speed { get; set; }
 
-    float yLevel = 0.4f;
+    float yLevel = -0.5f;
     float minimumHeading = 3f;
     public bool isReloading { get; set; }
     public bool isBlocking { get; set; }
@@ -33,12 +33,12 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     Vector3 shieldRestPos = new Vector3(0f, 0.6f, 0.75f);
 
-    Sequence attackSequence;
-    Sequence defenseSequence;
+    public Sequence attackSequence;
+    public Sequence defenseSequence;
 
     Rigidbody playerRigidBody;
 
-    float healthThreshold = 50;
+    float healthThreshold = 40;
 
     List<Vector3> waypoints = new List<Vector3>();
     int waypointIterator = 0;
@@ -65,7 +65,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     void Start()
     {
-        health = 100;
+        health = 50;
         speed = moveSpeed;
         turnSpeed = rotateSpeed;
 
@@ -73,9 +73,9 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
         playerRigidBody = GetComponent<Rigidbody>();
 
         waypoints = new List<Vector3>();
-        waypoints.Add(new Vector3(transform.position.x, yLevel, transform.position.z + 5f));
-        waypoints.Add(new Vector3(transform.position.x + 5f, yLevel, transform.position.z - 5f));
-        waypoints.Add(new Vector3(transform.position.x - 5f, yLevel, transform.position.z + 5f));
+        waypoints.Add(new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z + 5f));
+        waypoints.Add(new Vector3(transform.localPosition.x + 5f, yLevel, transform.localPosition.z - 5f));
+        waypoints.Add(new Vector3(transform.localPosition.x - 5f, yLevel, transform.localPosition.z + 5f));
 
         waypointIterator = 0;
         targetHeading = waypoints[waypointIterator];
@@ -143,9 +143,9 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                     stateDisplay.sprite = patrolSprite;
                     target = null;
                     waypoints = new List<Vector3>();
-                    waypoints.Add(new Vector3(transform.position.x, yLevel, transform.position.z + 5f));
-                    waypoints.Add(new Vector3(transform.position.x - 5f, yLevel, transform.position.z + 5f));
-                    waypoints.Add(new Vector3(transform.position.x + 5f, yLevel, transform.position.z + 5f));
+                    waypoints.Add(new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z + 5f));
+                    waypoints.Add(new Vector3(transform.localPosition.x - 5f, yLevel, transform.localPosition.z + 5f));
+                    waypoints.Add(new Vector3(transform.localPosition.x + 5f, yLevel, transform.localPosition.z + 5f));
                 }
                 break;
             case State.Investigate:
@@ -217,7 +217,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                 {
                     minimumHeading = 3f;
                     // Loop through waypoints
-                    if ((transform.position - targetHeading).magnitude < minimumHeading)
+                    if ((transform.localPosition - targetHeading).magnitude < minimumHeading)
                     {
                         waypointIterator++;
                         if (waypointIterator == waypoints.Count)
@@ -230,13 +230,13 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                 break;
             case State.Investigate:
                 {
-                    minimumHeading = 8f;
+                    minimumHeading = 14f;
                     if (target != null)
                     {
-                        targetHeading = target.transform.position;
+                        targetHeading = target.transform.localPosition;
                     }
 
-                    if (!isBlocking && health <= healthThreshold && !isReloading && Vector3.Distance(transform.position, target.transform.position) < targetingDistance/2)
+                    if (!isBlocking && health <= healthThreshold && !isReloading && Vector3.Distance(transform.localPosition, target.transform.localPosition) < targetingDistance/2)
                     {
                         OnBlock();
                     }
@@ -247,13 +247,13 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                 {
                     minimumHeading = 10f;
 
-                    targetHeading = target.transform.position + (target.GetComponent<Rigidbody>().velocity * 2);
+                    targetHeading = target.transform.localPosition + (target.GetComponent<Rigidbody>().velocity);
                 }
                 break;
             case State.Dodge:
                 {
-                    minimumHeading = 8f;
-                    targetHeading = target.transform.position + target.GetComponent<Rigidbody>().velocity;
+                    minimumHeading = 16f;
+                    targetHeading = target.transform.localPosition + target.GetComponent<Rigidbody>().velocity;
 
                     if (!isBlocking && health <= healthThreshold && !isReloading)
                     {
@@ -268,11 +268,11 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                 break;
         }
         // Rotate to target
-        transform.rotation = Quaternion.Slerp(transform.rotation,
-             Quaternion.LookRotation(targetHeading - new Vector3(transform.position.x, yLevel, transform.position.z)), turnSpeed * Time.deltaTime);
+        transform.localRotation = Quaternion.Slerp(transform.localRotation,
+             Quaternion.LookRotation(targetHeading - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)), turnSpeed * Time.deltaTime);
 
         // Decide to Attack
-        if(Mathf.Abs(transform.rotation.eulerAngles.y - (Quaternion.LookRotation(targetHeading - new Vector3(transform.position.x, yLevel, transform.position.z)).eulerAngles.y)) < 0.1f) {
+        if(Mathf.Abs(transform.localRotation.eulerAngles.y - (Quaternion.LookRotation(targetHeading - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)).eulerAngles.y)) < 0.1f) {
             if(currentState == State.Confront && !isBlocking)
             {
                 OnAttack();
@@ -285,13 +285,15 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
         if (currState == State.Dodge)
         {
             dirToGo = -transform.forward;
+            float distanceToTarget = (transform.localPosition - targetHeading).magnitude;
+            dirToGo = dirToGo * moveSpeed;
         }
         else
         {
             dirToGo = transform.forward;
+            float distanceToTarget = (transform.localPosition - targetHeading).magnitude;
+            dirToGo = dirToGo * moveSpeed * (distanceToTarget < minimumHeading ? distanceToTarget / (minimumHeading + 1f) : 1f);
         }
-        float distanceToTarget = (transform.position - targetHeading).magnitude;
-        dirToGo = dirToGo * moveSpeed * (distanceToTarget < minimumHeading ? distanceToTarget/(minimumHeading + 1f) : 1f);
         playerRigidBody.AddForce(new Vector3(dirToGo.x, 0f, dirToGo.z) * (isBlocking ? 0.5f : 1f), ForceMode.VelocityChange);
 
         // put speed limits
@@ -384,7 +386,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     void FireBullet()
     {
-        GameObject instantiatedBullet = GameObject.Instantiate(bulletPrefab, firePos.position, transform.rotation);
+        GameObject instantiatedBullet = GameObject.Instantiate(bulletPrefab, firePos.position, transform.localRotation);
         instantiatedBullet.GetComponent<BulletScript>().firedFrom = this;
     }
 
@@ -431,7 +433,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     public void OnAttackAreaExit()
     {
-        if(currentState != State.Dodge && Vector3.Distance(transform.position, target.transform.position) > targetingDistance)
+        if(currentState != State.Dodge && Vector3.Distance(transform.localPosition, target.transform.localPosition) > targetingDistance)
         {
             SwitchState(State.Investigate);
         }

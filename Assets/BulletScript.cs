@@ -29,7 +29,6 @@ public class BulletScript : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Shield") {
             IPlayerStats iShieldCollision = collision.transform.parent.parent.GetComponent<IPlayerStats>();
-            Debug.Log(iShieldCollision);
             GetComponent<Rigidbody>().velocity = -GetComponent<Rigidbody>().velocity;
             if (iShieldCollision != null && iShieldCollision != firedFrom)
             {
@@ -49,6 +48,11 @@ public class BulletScript : MonoBehaviour
 
     private void BulletDestroy(bool wasShielded = false)
     {
+        if(particleSystem1 == null)
+        {
+            particleSystem1 = this.GetComponent<ParticleSystem>();
+        }
+
         if(!wasShielded)
         {
             this.GetComponent<Rigidbody>().velocity = Vector3.zero;

@@ -496,6 +496,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1684544442, guid: ba36fe506e22cc94faf74ad852790c20, type: 3}
+      propertyPath: m_Constraints
+      value: 126
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684544442, guid: ba36fe506e22cc94faf74ad852790c20, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684544442, guid: ba36fe506e22cc94faf74ad852790c20, type: 3}
+      propertyPath: m_AngularDrag
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ba36fe506e22cc94faf74ad852790c20, type: 3}
 --- !u!1001 &1411078852209322096
@@ -563,6 +575,18 @@ PrefabInstance:
     - target: {fileID: 7939414136966672755, guid: cd9aa57f45890144da51d871599b7ef2,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1627174396, guid: cd9aa57f45890144da51d871599b7ef2, type: 3}
+      propertyPath: m_Constraints
+      value: 126
+      objectReference: {fileID: 0}
+    - target: {fileID: 1627174396, guid: cd9aa57f45890144da51d871599b7ef2, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1627174396, guid: cd9aa57f45890144da51d871599b7ef2, type: 3}
+      propertyPath: m_AngularDrag
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -32,14 +32,13 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
     // Start is called before the first frame update
     void Start()
     {
-        health = 100;
+        health = 50;
         speed = moveSpeed;
         turnSpeed = rotateSpeed;
         playerRigidBody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Key for velocity
         if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
