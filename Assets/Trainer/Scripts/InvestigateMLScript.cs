@@ -6,7 +6,7 @@ public class InvestigateMLScript : MonoBehaviour
 {
     MLContolAgent parentAgent;
     string playerTag = "Player";
-    string MLTag = "MLPlayer";
+    string MLTag = "FSMPlayer";
 
     // Start is called before the first frame update
     void Start()

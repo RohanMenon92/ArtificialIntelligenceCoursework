@@ -847,9 +847,9 @@ GameObject:
   - component: {fileID: 7939414136966672755}
   - component: {fileID: 8590391695273103748}
   - component: {fileID: 8590391695273103755}
+  - component: {fileID: 8590391695273103752}
   - component: {fileID: 8590391695273103754}
   - component: {fileID: 8590391695273103753}
-  - component: {fileID: 8590391695273103752}
   m_Layer: 0
   m_Name: FSMControlledAgent
   m_TagString: FSMPlayer
@@ -924,6 +924,31 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &8590391695273103752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8590391695273103759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa9f19026f5921443993088027e07f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotateSpeed: 3
+  moveSpeed: 0.3
+  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
+    type: 3}
+  firePos: {fileID: 1411078852083234106}
+  gun: {fileID: 1411078850992077567}
+  shield: {fileID: 1411078851944295033}
+  stateDisplay: {fileID: 100877013188379947}
+  patrolSprite: {fileID: 21300000, guid: 541e28f768c17f14087e905d6ba53c5b, type: 3}
+  investigateSprite: {fileID: 21300000, guid: 051f34d9ecab12742b64bee26273eb2b, type: 3}
+  confrontSprite: {fileID: 21300000, guid: 7218fbbcdda20d640b34e443e2fa3feb, type: 3}
+  dodgeSprite: {fileID: 21300000, guid: 0437f75807ee163408e430ea70133470, type: 3}
+  deadSprite: {fileID: 21300000, guid: db680d3263fc6384e849d763e6323e98, type: 3}
 --- !u!65 &8590391695273103754
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -953,31 +978,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &8590391695273103752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8590391695273103759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa9f19026f5921443993088027e07f12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotateSpeed: 3
-  moveSpeed: 0.3
-  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
-    type: 3}
-  firePos: {fileID: 1411078852083234106}
-  gun: {fileID: 1411078850992077567}
-  shield: {fileID: 1411078851944295033}
-  stateDisplay: {fileID: 100877013188379947}
-  patrolSprite: {fileID: 21300000, guid: 541e28f768c17f14087e905d6ba53c5b, type: 3}
-  investigateSprite: {fileID: 21300000, guid: 051f34d9ecab12742b64bee26273eb2b, type: 3}
-  confrontSprite: {fileID: 21300000, guid: 7218fbbcdda20d640b34e443e2fa3feb, type: 3}
-  dodgeSprite: {fileID: 21300000, guid: 0437f75807ee163408e430ea70133470, type: 3}
-  deadSprite: {fileID: 21300000, guid: db680d3263fc6384e849d763e6323e98, type: 3}
 --- !u!1 &8590391695652003023
 GameObject:
   m_ObjectHideFlags: 0

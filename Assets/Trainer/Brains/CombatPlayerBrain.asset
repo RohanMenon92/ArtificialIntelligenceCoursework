@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: CombatPlayerBrain
   m_EditorClassIdentifier: 
   brainParameters:
-    vectorObservationSize: 191
-    numStackedVectorObservations: 5
+    vectorObservationSize: 21
+    numStackedVectorObservations: 20
     vectorActionSize: 04000000
     cameraResolutions: []
     vectorActionDescriptions:

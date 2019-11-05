@@ -38,7 +38,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     Rigidbody playerRigidBody;
 
-    float healthThreshold = 40;
+    float healthThreshold = 20;
 
     List<Vector3> waypoints = new List<Vector3>();
     int waypointIterator = 0;
@@ -63,13 +63,28 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
         //Flee = 0
     };
 
+    public void Reset()
+    {
+        health = 50;
+        waypoints = new List<Vector3>();
+        waypoints.Add(new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z + 5f));
+        waypoints.Add(new Vector3(transform.localPosition.x + 5f, yLevel, transform.localPosition.z - 5f));
+        waypoints.Add(new Vector3(transform.localPosition.x - 5f, yLevel, transform.localPosition.z + 5f));
+
+        waypointIterator = 0;
+        targetHeading = waypoints[waypointIterator];
+
+        currentState = State.Patrol;
+
+        lastState = State.Patrol;
+    }
+
+
     void Start()
     {
         health = 50;
         speed = moveSpeed;
         turnSpeed = rotateSpeed;
-
-        target = GameObject.FindWithTag("Player");
         playerRigidBody = GetComponent<Rigidbody>();
 
         waypoints = new List<Vector3>();
@@ -171,7 +186,6 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
             case State.Dead:
                 {
                     stateDisplay.sprite = deadSprite;
-
                 }
                 break;
         }
@@ -267,12 +281,13 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
                 }
                 break;
         }
+
         // Rotate to target
         transform.localRotation = Quaternion.Slerp(transform.localRotation,
              Quaternion.LookRotation(targetHeading - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)), turnSpeed * Time.deltaTime);
 
         // Decide to Attack
-        if(Mathf.Abs(transform.localRotation.eulerAngles.y - (Quaternion.LookRotation(targetHeading - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)).eulerAngles.y)) < 0.1f) {
+        if(Mathf.Abs(transform.localRotation.eulerAngles.y - (Quaternion.LookRotation(targetHeading - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)).eulerAngles.y)) < 0.2f) {
             if(currentState == State.Confront && !isBlocking)
             {
                 OnAttack();
@@ -372,6 +387,10 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
     void OnUnBlock()
     {
+        if (defenseSequence.IsPlaying())
+        {
+            defenseSequence.Kill(true);
+        }
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(0f, 0f, 0f), 0.2f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalMove(shieldRestPos, 0.3f).SetEase(Ease.OutBack));

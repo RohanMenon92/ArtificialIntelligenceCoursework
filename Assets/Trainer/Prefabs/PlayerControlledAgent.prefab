@@ -740,9 +740,9 @@ GameObject:
   - component: {fileID: 1174683319154830748}
   - component: {fileID: 1955910253}
   - component: {fileID: 1955910252}
+  - component: {fileID: 1955910249}
   - component: {fileID: 1955910251}
   - component: {fileID: 1955910250}
-  - component: {fileID: 1955910249}
   m_Layer: 0
   m_Name: PlayerControlledAgent
   m_TagString: Player
@@ -815,6 +815,25 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &1955910249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1955910248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a542475042a6544081f771039baf748, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotateSpeed: 200
+  moveSpeed: 5
+  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
+    type: 3}
+  firePos: {fileID: 332333758}
+  gun: {fileID: 43608835}
+  shield: {fileID: 805707717}
 --- !u!65 &1955910251
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -844,25 +863,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &1955910249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1955910248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a542475042a6544081f771039baf748, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotateSpeed: 200
-  moveSpeed: 5
-  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
-    type: 3}
-  firePos: {fileID: 332333758}
-  gun: {fileID: 43608835}
-  shield: {fileID: 805707717}
 --- !u!1 &2082047682
 GameObject:
   m_ObjectHideFlags: 0

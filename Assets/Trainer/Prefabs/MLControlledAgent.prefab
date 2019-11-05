@@ -266,9 +266,9 @@ GameObject:
   - component: {fileID: 2977736672853766645}
   - component: {fileID: 3479680618889924866}
   - component: {fileID: 3479680618889924877}
+  - component: {fileID: 2333704289607547351}
   - component: {fileID: 3479680618889924876}
   - component: {fileID: 3479680618889924879}
-  - component: {fileID: 2333704289607547351}
   - component: {fileID: 1918409931861337703}
   m_Layer: 0
   m_Name: MLControlledAgent
@@ -342,6 +342,34 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &2333704289607547351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3479680618889924873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3753960d3e1cf347b7dae4a3dd0778b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  brain: {fileID: 11400000, guid: d41f944297e27814c9a96b5e3ad08e51, type: 2}
+  agentParameters:
+    agentCameras: []
+    agentRenderTextures: []
+    maxStep: 0
+    resetOnDone: 1
+    onDemandDecision: 0
+    numberOfActionsBetweenDecisions: 10
+  tagToTarget: Player
+  rotateSpeed: 200
+  moveSpeed: 0.0001
+  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
+    type: 3}
+  firePos: {fileID: 6118232525555529148}
+  gun: {fileID: 6118232523860621945}
+  shield: {fileID: 6118232524879719167}
 --- !u!65 &3479680618889924876
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -371,34 +399,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &2333704289607547351
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3479680618889924873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3753960d3e1cf347b7dae4a3dd0778b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  brain: {fileID: 11400000, guid: d41f944297e27814c9a96b5e3ad08e51, type: 2}
-  agentParameters:
-    agentCameras: []
-    agentRenderTextures: []
-    maxStep: 0
-    resetOnDone: 1
-    onDemandDecision: 0
-    numberOfActionsBetweenDecisions: 10
-  tagToTarget: Player
-  rotateSpeed: 200
-  moveSpeed: 0.0001
-  bulletPrefab: {fileID: 9167693811305420214, guid: fd05807e80521ae46b50d04659c57542,
-    type: 3}
-  firePos: {fileID: 6118232525555529148}
-  gun: {fileID: 6118232523860621945}
-  shield: {fileID: 6118232524879719167}
 --- !u!114 &1918409931861337703
 MonoBehaviour:
   m_ObjectHideFlags: 0

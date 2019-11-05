@@ -181,6 +181,10 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
 
     void OnUnBlock()
     {
+        if (defenseSequence.IsPlaying())
+        {
+            defenseSequence.Kill(true);
+        }
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(0f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalMove(shieldRestPos, 0.25f).SetEase(Ease.OutBack));
