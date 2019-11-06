@@ -509,4 +509,14 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
     {
         Debug.Log(this.gameObject.name + " shot hit was blocked by a shield");
     }
+
+    public void KillDefenseSequence()
+    {
+        defenseSequence.Kill(true);
+    }
+
+    public void KillAttackSequence()
+    {
+        attackSequence.Kill(true);
+    }
 }

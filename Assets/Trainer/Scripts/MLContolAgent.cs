@@ -72,17 +72,27 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public override void AgentReset()
     {
-        // Only reset sibling FSM AI
-        FSMControlAgent fsmControlAgent = transform.parent.GetComponentInChildren<FSMControlAgent>();
+        GameObject target;
+        // Only reset sibling PLayerStats
+        FSMControlAgent fsmTarget = transform.parent.GetComponentInChildren<FSMControlAgent>();
+        if (fsmTarget == null)
+        {
+            target = transform.parent.GetComponentInChildren<PlayerControlScript>().gameObject;
+        } else
+        {
+            target = fsmTarget.gameObject;
+        }
+
+        IPlayerStats targetAgent = target.GetComponent<IPlayerStats>();
 
         // Randomize Spawn locations
-        fsmControlAgent.transform.localPosition = new Vector3(resetFSMPosition.x - Random.Range(-2f, 2f), resetFSMPosition.y, resetFSMPosition.z - Random.Range(-2f, 2f));
+        target.transform.localPosition = new Vector3(resetFSMPosition.x - Random.Range(-2f, 2f), resetFSMPosition.y, resetFSMPosition.z - Random.Range(-2f, 2f));
         transform.localPosition = new Vector3(resetMLPosition.x - Random.Range(-2f, 2f), resetMLPosition.y, resetMLPosition.z - Random.Range(-2f, 2f));
 
         // ResetHealth
         health = 50;
-        fsmControlAgent.health = 50;
-        fsmControlAgent.Reset();
+        targetAgent.health = 50;
+        targetAgent.Reset();
 
         // Kill animations and callbacks
         if (isBlocking)
@@ -96,17 +106,16 @@ public class MLContolAgent : Agent, IPlayerStats
             attackSequence.Kill(true);
         }
 
-        if (fsmControlAgent.isBlocking)
+        if (targetAgent.isBlocking)
         {
             OnUnBlock();
-            fsmControlAgent.defenseSequence.Kill(true);
+            targetAgent.KillDefenseSequence();
         }
 
-        if (fsmControlAgent.isReloading)
+        if (targetAgent.isReloading)
         {
-            fsmControlAgent.attackSequence.Kill(true);
+            targetAgent.KillAttackSequence();
         }
-
 
         foreach (BulletScript bullet in GameObject.FindObjectsOfType<BulletScript>())
         {
@@ -420,7 +429,7 @@ public class MLContolAgent : Agent, IPlayerStats
     {
         if (!isReloading && !isBlocking)
         {
-            AddReward(5f);
+            AddReward(3f);
             isReloading = true;
             AttackAction();
         } else
@@ -515,7 +524,7 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public void OnSuccessHit()
     {
-        AddReward(100f);
+        AddReward(200f);
         Debug.Log(this.gameObject.name + " successfully hit");
     }
 
@@ -560,7 +569,7 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public void OnEnemyDeath()
     {
-        AddReward(200f);
+        AddReward(500f);
         Done();
     }
 
@@ -571,5 +580,20 @@ public class MLContolAgent : Agent, IPlayerStats
         {
             AddReward(-0.1f);
         }
+    }
+
+    public void KillDefenseSequence()
+    {
+        defenseSequence.Kill(true);
+    }
+
+    public void KillAttackSequence()
+    {
+        attackSequence.Kill(true);
+    }
+
+    public void Reset()
+    {
+        
     }
 }

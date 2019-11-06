@@ -21,8 +21,8 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
     public Transform firePos;
 
     Vector3 shieldRestPos = new Vector3(0f, 0.6f, 0.75f);
-    Sequence attackSequence;
-    Sequence defenseSequence;
+    public Sequence attackSequence;
+    public Sequence defenseSequence;
 
     Rigidbody playerRigidBody;
 
@@ -74,8 +74,11 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
         }
 
         // KeyUp
+    }
 
-
+    public void Reset()
+    {
+        health = 50;
     }
 
     void OnForward()
@@ -211,8 +214,19 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
     {
         Debug.Log(this.gameObject.name + " successfully blocked a shot");
     }
+
     public void OnShieldedHit()
     {
         Debug.Log(this.gameObject.name + " shot hit was blocked by a shield");
+    }
+
+    public void KillDefenseSequence()
+    {
+        defenseSequence.Kill(true);
+    }
+
+    public void KillAttackSequence()
+    {
+        attackSequence.Kill(true);
     }
 }

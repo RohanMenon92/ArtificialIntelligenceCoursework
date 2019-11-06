@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public interface IPlayerStats
 {
@@ -28,4 +28,12 @@ public interface IPlayerStats
     // On Player dying
     void OnDeath();
 
+    // On Reset
+    void Reset();
+
+    // Kill Defense Sequence
+    void KillDefenseSequence();
+
+    // Kill Attack Sequence
+    void KillAttackSequence();
 }
