@@ -5,8 +5,7 @@ using UnityEngine;
 public class InvestigateMLScript : MonoBehaviour
 {
     MLContolAgent parentAgent;
-    string playerTag = "Player";
-    string MLTag = "FSMPlayer";
+    List<string> playerTags = new List<string>() { "Player" , "FSMPlayer", "MLPlayer"};
 
     // Start is called before the first frame update
     void Start()
@@ -16,25 +15,39 @@ public class InvestigateMLScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == parentAgent.tagToTarget)
+        if (playerTags.Contains(other.tag))
         {
-            parentAgent.OnInvestigateAreaEnter(other.gameObject);
+            // Test if it is the same agent
+            if (other.transform != transform.parent)
+            {
+                // Enter investigate area
+                parentAgent.OnInvestigateAreaEnter(other.gameObject);
+            }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == parentAgent.tagToTarget)
+        if (playerTags.Contains(other.tag))
         {
-            parentAgent.SetTarget(other.gameObject);
+            if (other.transform != transform.parent)
+            {
+                // Enter continually update target
+                parentAgent.SetTarget(other.gameObject);
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == parentAgent.tagToTarget)
+        if (playerTags.Contains(other.tag))
         {
-            parentAgent.OnInvestigateAreaExit(other.gameObject);
+            // Test if it is the same agent
+            if (other.transform != transform.parent)
+            {
+                // On Investigate are exit
+                parentAgent.OnInvestigateAreaExit(other.gameObject);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using MLAgents;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControlScript : MonoBehaviour, IPlayerStats
 {
@@ -126,12 +127,13 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
     }
 
     // When it's hit by another player, called by script object
-    public void OnHit()
+    public void OnHit(IPlayerStats hittingEnemy)
     {
         this.health -= 10;
         this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
         if(health <= 0f)
         {
+            hittingEnemy.OnKill();
             OnDeath();
         }
     }
@@ -213,6 +215,12 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
     public void OnSuccessfulBlock()
     {
         Debug.Log(this.gameObject.name + " successfully blocked a shot");
+    }
+
+    public void OnKill()
+    {
+        // Reload Scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void OnShieldedHit()

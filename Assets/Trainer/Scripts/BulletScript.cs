@@ -40,7 +40,7 @@ public class BulletScript : MonoBehaviour
         }
         else if (iPlayerCollision != null)
         {
-            iPlayerCollision.OnHit();
+            iPlayerCollision.OnHit(firedFrom);
             firedFrom.OnSuccessHit();
             BulletDestroy();
         }

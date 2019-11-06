@@ -410,7 +410,7 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
     }
 
     // When it's hit by another player, called by script object
-    public void OnHit()
+    public void OnHit(IPlayerStats enemyHitting)
     {
         this.health -= 10;
         this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
@@ -421,8 +421,13 @@ public class FSMControlAgent : MonoBehaviour, IPlayerStats
 
         if (health <= 0)
         {
+            enemyHitting.OnKill();
             SwitchState(State.Dead);
         }
+    }
+
+    public void OnKill()
+    {
     }
 
     // When other player blocks attack

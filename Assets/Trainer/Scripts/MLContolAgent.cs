@@ -3,6 +3,7 @@ using MLAgents;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MLContolAgent : Agent, IPlayerStats
 {
@@ -33,11 +34,8 @@ public class MLContolAgent : Agent, IPlayerStats
     public Transform gun;
     public Transform shield;
 
-    Vector3 resetFSMPosition = new Vector3(-39.6f, -0.5f, 56.5f);
-    Vector3 resetMLPosition = new Vector3(-8.8f, -0.5f, 41f);
-
     float accuracyThreshold = 30f;
-    float targetDistanceThreshold = 7f;
+    float targetDistanceThreshold = 6f;
     //RayPerception m_RayPer;
 
     //float[] m_RayAngles = { -40f, -20f, 0f, 20f, 40f, 60f, 80f, 100f, 120f, 140f, 160f, 180f, 200f, 220f };
@@ -72,28 +70,6 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public override void AgentReset()
     {
-        GameObject target;
-        // Only reset sibling PLayerStats
-        FSMControlAgent fsmTarget = transform.parent.GetComponentInChildren<FSMControlAgent>();
-        if (fsmTarget == null)
-        {
-            target = transform.parent.GetComponentInChildren<PlayerControlScript>().gameObject;
-        } else
-        {
-            target = fsmTarget.gameObject;
-        }
-
-        IPlayerStats targetAgent = target.GetComponent<IPlayerStats>();
-
-        // Randomize Spawn locations
-        target.transform.localPosition = new Vector3(resetFSMPosition.x - Random.Range(-2f, 2f), resetFSMPosition.y, resetFSMPosition.z - Random.Range(-2f, 2f));
-        transform.localPosition = new Vector3(resetMLPosition.x - Random.Range(-2f, 2f), resetMLPosition.y, resetMLPosition.z - Random.Range(-2f, 2f));
-
-        // ResetHealth
-        health = 50;
-        targetAgent.health = 50;
-        targetAgent.Reset();
-
         // Kill animations and callbacks
         if (isBlocking)
         {
@@ -106,51 +82,11 @@ public class MLContolAgent : Agent, IPlayerStats
             attackSequence.Kill(true);
         }
 
-        if (targetAgent.isBlocking)
-        {
-            OnUnBlock();
-            targetAgent.KillDefenseSequence();
-        }
-
-        if (targetAgent.isReloading)
-        {
-            targetAgent.KillAttackSequence();
-        }
-
         foreach (BulletScript bullet in GameObject.FindObjectsOfType<BulletScript>())
         {
             Destroy(bullet.gameObject);
         }
-
-        // Reset colliders once
-        StartCoroutine(ResetColliders());
-
-        //StartCoroutine(CheckDamageAndDecideToFail());
     }
-
-    IEnumerator ResetColliders()
-    {
-        foreach (Collider coll in this.GetComponentsInChildren<Collider>())
-        {
-            coll.enabled = false;
-            yield return new WaitForEndOfFrame();
-            coll.enabled = true;
-        }
-    }
-
-    //IEnumerator CheckDamageAndDecideToFail()
-    //{
-    //    yield return new WaitForSeconds(10f);
-    //    // End Experiment with faliure because no one got damaged
-    //    FSMControlAgent fsmControlAgent = transform.parent.GetComponentInChildren<FSMControlAgent>();
-
-    //    if (fsmControlAgent.health == 50)
-    //    {
-    //        Debug.Log("Failure case no one lost health at 15 seconds");
-    //        AddReward(-75f);
-    //        Done();
-    //    }
-    //}
 
     public override void CollectObservations()
     {
@@ -202,18 +138,18 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public override void AgentAction(float[] vectorAction, string textAction)
     {
-        float upDownSignal = Mathf.FloorToInt(vectorAction[0]);
-        float leftRightSignal = Mathf.FloorToInt(vectorAction[1]);
-        float blockAction = Mathf.FloorToInt(vectorAction[2]);
-        float attackAction = Mathf.FloorToInt(vectorAction[3]);
+        float upDownSignal = (int)Mathf.FloorToInt(vectorAction[0]);
+        float leftRightSignal = (int)Mathf.FloorToInt(vectorAction[1]);
+        float blockAction = (int)Mathf.FloorToInt(vectorAction[2]);
+        float attackAction = (int)Mathf.FloorToInt(vectorAction[3]);
 
         // Set up bool values so that fixed update can decide whenn to do it per frame
-        if (upDownSignal > 0.1f)
+        if (upDownSignal == 1)
         {
             OnDecisionForward(true);
             OnDecisionBack(false);
         }
-        else if (upDownSignal < -0.1f)
+        else if (upDownSignal == 2)
         {
             OnDecisionBack(true);
             OnDecisionForward(false);
@@ -223,12 +159,12 @@ public class MLContolAgent : Agent, IPlayerStats
             OnDecisionForward(false);
         }
 
-        if (leftRightSignal > 0.2f)
+        if (leftRightSignal == 1)
         {
             OnDecisionLeft(true);
             OnDecisionRight(false);
         }
-        else if (leftRightSignal < -0.2f)
+        else if (leftRightSignal == 2)
         {
             OnDecisionLeft(false);
             OnDecisionRight(true);
@@ -237,7 +173,7 @@ public class MLContolAgent : Agent, IPlayerStats
             OnDecisionRight(false);
         }
 
-        if (blockAction > 0.5f)
+        if (blockAction == 1)
         {
             OnDecisionBlock(true);
             OnDecisionUnBlock(false);
@@ -248,7 +184,7 @@ public class MLContolAgent : Agent, IPlayerStats
             OnDecisionUnBlock(true);
         }
 
-        if (attackAction > 0.5f)
+        if (attackAction == 1)
         {
             OnDecisionAttack(true);
         } else
@@ -298,16 +234,14 @@ public class MLContolAgent : Agent, IPlayerStats
         // Check decision bools to have smooth input
         if (onDecisionForward)
         {
-            AddReward(0.001f);
             OnForward();
         }
         else if (onDecisionBack)
         {
-            AddReward(0.000000001f);
             OnBack();
         } else
         {
-            AddReward(-0.00000001f);
+            //AddReward(-0.0001f);
         }
 
         if (onDecisionLeft)
@@ -332,10 +266,13 @@ public class MLContolAgent : Agent, IPlayerStats
         {
             if(target != null)
             {
-                if (Mathf.Abs(lookAtDeviation) < 10f)
+                if(Mathf.Abs(lookAtDeviation) < 2f)
+                {
+                    AddReward(5f);
+                } else if (Mathf.Abs(lookAtDeviation) < 10f)
                 {
                     // If looking towards player and firing, add a reward
-                    AddReward(5f);
+                    AddReward(2f);
                 }
                 else
                 {
@@ -359,36 +296,33 @@ public class MLContolAgent : Agent, IPlayerStats
                 if (Mathf.Abs(lookAtDeviation) < 5f)
                 {
                     // Add HighReward for looking within 10 degrees
-                    AddReward(2f);
-                } else
+                    AddReward(0.004f);
+                }
+                else
                 {
                     // Add Reward less than 1
-                    AddReward(Mathf.Abs(lookAtDeviation)/accuracyThreshold);
+                    AddReward(0.001f * Mathf.Abs(lookAtDeviation) / accuracyThreshold);
                 }
             } else
             {
                 //Deduct reward if not looking
-                AddReward(-0.00001f * Mathf.Abs(lookAtDeviation));
+                AddReward(-0.01f);
             }
 
-            // Add Reward based on close to target or not
+            //Add Reward based on close to target or not
             float distanceToTarget = Vector3.Distance(target.transform.localPosition, transform.localPosition);
             if (distanceToTarget > targetDistanceThreshold)
             {
-                AddReward(-0.001f * distanceToTarget);
-            } else
-            {
-                AddReward(0.001f * (targetDistanceThreshold/distanceToTarget));
+                AddReward(-0.01f * distanceToTarget);
             }
+            else
+            {
+                AddReward(0.1f);
+            }
+        } else
+        {
+            AddReward(-0.001f);
         }
-
-        // If objects glitch, end simulation
-        //if (transform.localPosition.y < -40f || transform.localPosition.z < -8.5f || transform.localPosition.z > 96.5f || transform.localPosition.x < -75f || transform.localPosition.x > 28f)
-        //{
-        //    Debug.Log("GameObject Out of Bounds Falling off screen");
-        //    AddReward(-100f);
-        //    OnDeath();
-        //}
     }
     void OnForward()
     {
@@ -434,18 +368,19 @@ public class MLContolAgent : Agent, IPlayerStats
             AttackAction();
         } else
         {
-            AddReward(-0.00001f);
+            AddReward(-0.001f);
         }
     }
 
     // When it's hit by another player, called by script object
-    public void OnHit()
+    public void OnHit(IPlayerStats hittingPlayer)
     {
-        AddReward(-25f);
+        AddReward(-100f);
         this.health -= 10;
         this.GetComponent<Rigidbody>().velocity = new Vector3(0f, 0f, 0f);
         if (health <= 0f)
         {
+            hittingPlayer.OnKill();
             OnDeath();
         }
     }
@@ -459,7 +394,7 @@ public class MLContolAgent : Agent, IPlayerStats
             BlockAction();
         } else
         {
-            AddReward(-0.0001f);
+            AddReward(-0.001f);
         }
     }
 
@@ -488,21 +423,17 @@ public class MLContolAgent : Agent, IPlayerStats
 
     void BlockAction()
     {
-        // Add tiny reward to teach to correctly block
-        AddReward(0.0001f);
         defenseSequence = DOTween.Sequence();
         defenseSequence.Insert(0f, shield.DOLocalMove(new Vector3(0f, 0f, 1f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, shield.DOLocalRotate(new Vector3(60f, 0f, 0f), 0.25f).SetEase(Ease.InOutBack));
         defenseSequence.Insert(0f, gun.DOScale(new Vector3(1f, 1f, 0.5f), 0.25f).SetEase(Ease.OutBack));
-        // TO DO
-        // MoveShield To Position
     }
 
     void OnUnBlock()
     {
         if(!isBlocking)
         {
-            AddReward(-0.0001f);
+            AddReward(-0.001f);
             return;
         }
         if(defenseSequence.IsPlaying())
@@ -517,6 +448,12 @@ public class MLContolAgent : Agent, IPlayerStats
         defenseSequence.OnComplete(BlockComplete);
     }
 
+    public void OnKill()
+    {
+        AddReward(800f);
+        Done();
+    }
+
     public void BlockComplete()
     {
         isBlocking = false;
@@ -524,13 +461,13 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public void OnSuccessHit()
     {
-        AddReward(200f);
+        AddReward(300f);
         Debug.Log(this.gameObject.name + " successfully hit");
     }
 
     public void OnDeath()
     {
-        AddReward(-400f);
+        AddReward(-800f);
         Done();
         Debug.Log(this.gameObject.name + " isDead");
     }

@@ -17,7 +17,7 @@ public interface IPlayerStats
     void OnBlock();
 
     // On Player being hit directly
-    void OnHit();
+    void OnHit(IPlayerStats firedFrom);
     // On Successful Attempt to hit enemy
     void OnSuccessHit();
     // On Succesfully Blocking a hit
@@ -30,6 +30,9 @@ public interface IPlayerStats
 
     // On Reset
     void Reset();
+
+    // On Kill
+    void OnKill();
 
     // Kill Defense Sequence
     void KillDefenseSequence();
