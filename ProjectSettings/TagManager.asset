@@ -29,6 +29,9 @@ TagManager:
   - pit
   - Sword
   - Shield
+  - FSMPlayer
+  - MLPlayer
+  - Bullet
   layers:
   - Default
   - TransparentFX

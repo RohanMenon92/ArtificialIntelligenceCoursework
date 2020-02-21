@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Trainer/Scenes/MLAgentMLScene.unity
+    guid: 47240194297c6924dac5dc6042e5f840
   m_configObjects: {}

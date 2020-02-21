@@ -186,7 +186,7 @@ public class PlayerControlScript : MonoBehaviour, IPlayerStats
 
     void OnUnBlock()
     {
-        if (defenseSequence.IsPlaying())
+        if (defenseSequence!=null && defenseSequence.IsPlaying())
         {
             defenseSequence.Kill(true);
         }

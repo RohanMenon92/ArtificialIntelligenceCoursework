@@ -36,10 +36,10 @@ public class MLContolAgent : Agent, IPlayerStats
 
     float accuracyThreshold = 30f;
     float targetDistanceThreshold = 6f;
-    //RayPerception m_RayPer;
+    RayPerception m_RayPer;
 
-    //float[] m_RayAngles = { -40f, -20f, 0f, 20f, 40f, 60f, 80f, 100f, 120f, 140f, 160f, 180f, 200f, 220f };
-    //string[] detectableObjects = { "Bullet", "FSMPlayer", "Player", "wall" };
+    float[] m_RayAngles = { -30f, -20f, 0f, 20f, 30f };
+    string[] detectableObjects = { "Bullet", "FSMPlayer", "Player", "wall" };
     // Start is called before the first frame update
 
 
@@ -60,7 +60,7 @@ public class MLContolAgent : Agent, IPlayerStats
     public override void InitializeAgent()
     {
         base.InitializeAgent();
-        //m_RayPer = GetComponent<RayPerception>();
+        m_RayPer = GetComponent<RayPerception>();
 
         health = 50;
         speed = moveSpeed;
@@ -90,11 +90,11 @@ public class MLContolAgent : Agent, IPlayerStats
 
     public override void CollectObservations()
     {
-        //float rayDistance = 20f;
+        float rayDistance = 20f;
 
         //Add self Observations
-        //AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 0f, 0f));
-        //AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 1f, 0f));
+        AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 0f, 0f));
+        AddVectorObs(m_RayPer.Perceive(rayDistance, m_RayAngles, detectableObjects, 1f, 0f));
         AddVectorObs(health);
         AddVectorObs(isReloading);
         AddVectorObs(isBlocking);
@@ -115,8 +115,8 @@ public class MLContolAgent : Agent, IPlayerStats
             AddVectorObs(targetIPlayerStats.isReloading);
             AddVectorObs(targetIPlayerStats.isBlocking);
             AddVectorObs(Vector3.Distance(target.transform.localPosition, transform.localPosition));
-            AddVectorObs(new Vector3(target.transform.localPosition.x, yLevel, target.transform.localPosition.z));
-            float lookAtDeviation = transform.localRotation.eulerAngles.y - (Quaternion.LookRotation(target.transform.position - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)).eulerAngles.y);
+            AddVectorObs(transform.InverseTransformPoint(new Vector3(target.transform.localPosition.x, yLevel, target.transform.localPosition.z)));
+            float lookAtDeviation = transform.localRotation.eulerAngles.y - (Quaternion.LookRotation(target.transform.localPosition - new Vector3(transform.localPosition.x, yLevel, transform.localPosition.z)).eulerAngles.y);
             AddVectorObs(lookAtDeviation);
             AddVectorObs(target.transform.localRotation.y);
             AddVectorObs(target.GetComponent<Rigidbody>().velocity.x);
@@ -241,7 +241,7 @@ public class MLContolAgent : Agent, IPlayerStats
             OnBack();
         } else
         {
-            //AddReward(-0.0001f);
+            AddReward(-0.1f);
         }
 
         if (onDecisionLeft)
@@ -282,7 +282,7 @@ public class MLContolAgent : Agent, IPlayerStats
             } else
             {
                 // Add negative reward for firing if not looking at player
-                AddReward(-0.5f);
+                AddReward(-0.1f);
             }
             OnAttack();
         }
@@ -296,32 +296,32 @@ public class MLContolAgent : Agent, IPlayerStats
                 if (Mathf.Abs(lookAtDeviation) < 5f)
                 {
                     // Add HighReward for looking within 10 degrees
-                    AddReward(0.004f);
+                    AddReward(4f);
                 }
                 else
                 {
                     // Add Reward less than 1
-                    AddReward(0.001f * Mathf.Abs(lookAtDeviation) / accuracyThreshold);
+                    AddReward(Mathf.Abs(lookAtDeviation) / accuracyThreshold);
                 }
             } else
             {
                 //Deduct reward if not looking
-                AddReward(-0.01f);
+                AddReward(-0.1f);
             }
 
             //Add Reward based on close to target or not
-            float distanceToTarget = Vector3.Distance(target.transform.localPosition, transform.localPosition);
-            if (distanceToTarget > targetDistanceThreshold)
-            {
-                AddReward(-0.01f * distanceToTarget);
-            }
-            else
-            {
-                AddReward(0.1f);
-            }
+            //float distanceToTarget = Vector3.Distance(target.transform.localPosition, transform.localPosition);
+            //if (distanceToTarget > targetDistanceThreshold)
+            //{
+            //    AddReward(-0.0001f * distanceToTarget);
+            //}
+            //else
+            //{
+            //    AddReward(0.001f);
+            //}
         } else
         {
-            AddReward(-0.001f);
+            AddReward(-0.5f);
         }
     }
     void OnForward()
@@ -436,7 +436,7 @@ public class MLContolAgent : Agent, IPlayerStats
             AddReward(-0.001f);
             return;
         }
-        if(defenseSequence.IsPlaying())
+        if(defenseSequence != null && defenseSequence.IsPlaying())
         {
             defenseSequence.Kill(true);
         }
@@ -489,7 +489,7 @@ public class MLContolAgent : Agent, IPlayerStats
     }
     public void SetTarget(GameObject targetInArea)
     {
-        AddReward(0.001f);
+        AddReward(0.1f);
         if (target != targetInArea)
         {
             target = targetInArea;
@@ -499,7 +499,7 @@ public class MLContolAgent : Agent, IPlayerStats
     {
         if (target == targetInArea)
         {
-            AddReward(-1f);
+            AddReward(-10f);
             target = null;
         }
     }
@@ -515,7 +515,7 @@ public class MLContolAgent : Agent, IPlayerStats
         // Prevent it from touching walls for too long
         if (collision.gameObject.tag == "wall")
         {
-            AddReward(-0.1f);
+            AddReward(-1f);
         }
     }
 
