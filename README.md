@@ -15,9 +15,9 @@ There are 3 scenes:
 - MLPlayingScene: Play against an ML agent
 
 ## Instructions
-W,A,S,D to move
-SPACE to shoot
-Shift to shield
+- W,A,S,D to move
+- SPACE to shoot
+- Shift to shield
 
 ## Screenshots
 ![Agent fighting](https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Screenshots/Agents%20fighting.PNG)
