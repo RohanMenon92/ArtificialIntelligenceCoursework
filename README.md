@@ -22,4 +22,4 @@ Shift to shield
 ## Screenshots
 ![Agent fighting](https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Screenshots/Agents%20fighting.PNG)
 ![FSM Scene](https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Screenshots/FSMScene.PNG)
-![Training](https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Screenshots/IncreasingReward.PNG)
+![Training](https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Screenshots/IncreasingRewards.PNG)
