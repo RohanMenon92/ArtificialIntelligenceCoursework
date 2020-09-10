@@ -7,6 +7,8 @@ The application used to showcase and train the AI is Unity with C# as the primar
 
 The key learning for the AI should be to move towards the player and when looking atthe player, it should try to shoot. The game is relatively straight forward but defining anAI that does these movements in a “non predictable” fashion is quite challenging due tothe simplicity of the game.
 
+Report: https://github.com/RohanMenon92/ArtificialIntelligenceCoursework/blob/master/Report%20(Updated).pdf
+
 ## Scenes
 There are 3 scenes:
 - FSMScene: Play against a tank controlled by a finite state machine
