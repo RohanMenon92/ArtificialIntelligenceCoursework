@@ -3,7 +3,7 @@ For the AI course I decided to write a program that generates an enemy tank AI w
 
 The FSM agent patrols and attacks when the player is in range. If it has low health, it will try to run away and shield after shooting.
 
-The application used to showcase and train the AI is Unity with C# as the primaryscripting language for Unity. For training and using the ML-Agents algorithm and togenerate a usable Neural Network, I am using the ml agents package provided by Unityto use Tensorflow provided by google with Python as the primary scripting language.
+For training and using the ML-Agents algorithm and to generate a usable Neural Network, I am using the "ml agents" package provided by Unityto use Tensorflow provided by google with Python as the primary scripting language.
 
 The key learning for the AI should be to move towards the player and when looking atthe player, it should try to shoot. The game is relatively straight forward but defining anAI that does these movements in a “non predictable” fashion is quite challenging due tothe simplicity of the game.
 
