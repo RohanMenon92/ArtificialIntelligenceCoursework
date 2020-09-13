@@ -5,7 +5,7 @@ The FSM agent patrols and attacks when the player is in range. If it has low hea
 
 For training and using the ML-Agents algorithm and to generate a usable Neural Network, I am using the "ml agents" package provided by Unityto use Tensorflow provided by google with Python as the primary scripting language.
 
-The key learning for the AI should be to move towards the player and when looking atthe player, it should try to shoot. The game is relatively straight forward but defining anAI that does these movements in a “non predictable” fashion is quite challenging due tothe simplicity of the game.
+The key learning for the AI should be to move towards the player and when looking at the player, it should try to shoot. The game is relatively straight forward but defining an AI that does these movements in a “non predictable” fashion is quite challenging due tothe simplicity of the game.
 
 Video: https://youtu.be/4TnemHMEzzQ
 
